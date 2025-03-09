@@ -1,12 +1,14 @@
+Get a list of liked songs from Spotify and download them from Youtube using ffmpeg
+
 # Requirements
-python
-ffmpeg
+- python
+- ffmpeg
 
 # How to use (Windows)
 1) install python 3 on your machine
 2) install ffmpeg and add it to your path environment variable
 3) doubleclick and execute `installation.bat`
-4) get `CLIENT_ID` and `CLIENT_SECRET` from https://developer.spotify.com/
+4) get `CLIENT_ID` and `CLIENT_SECRET` from https://developer.spotify.com/ (create a new app)
 5) open the `.env` and set your `CLIENT_ID` and `CLIENT_SECRET` like this:
     ```
     CLIENT_ID = "XXXXXX"
