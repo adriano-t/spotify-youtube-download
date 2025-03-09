@@ -1,5 +1,10 @@
 # **Spotify to YouTube Downloader**
 
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Python Version](https://img.shields.io/badge/python-3.x-blue)
+![FFmpeg](https://img.shields.io/badge/ffmpeg-yes-orange)
+
 ## **Overview**
 
 This tool allows you to effortlessly download your **liked songs** from **Spotify** and convert them into high-quality **MP3** files. It automates the entire process, from fetching your liked tracks to downloading them from YouTube and tagging them with relevant **metadata** (such as title, artist, album, genre, etc.), as well as embedding the **cover image** and **lyrics**.
