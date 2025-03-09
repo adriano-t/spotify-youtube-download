@@ -1,0 +1,6 @@
+yt-dlp
+mutagen
+requests
+tqdm
+eyed3
+spotipy
