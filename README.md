@@ -1,6 +1,5 @@
 # **Spotify to YouTube Downloader**
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Python Version](https://img.shields.io/badge/python-3.x-blue)
 ![FFmpeg](https://img.shields.io/badge/ffmpeg-yes-orange)
