@@ -4,3 +4,4 @@ requests
 tqdm
 eyed3
 spotipy
+dotenv
