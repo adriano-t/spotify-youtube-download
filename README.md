@@ -17,6 +17,7 @@ This tool allows you to effortlessly download your **liked songs** from **Spotif
 - ✅ Automatically add essential **metadata** (title, artist, album, year, genre) to the downloaded MP3 files.
 - ✅ Embed the **album cover** image directly into the MP3 file.
 - ✅ Add **lyrics** to the MP3 file for a complete music experience.
+- ✅ Override manually some songs to download specifica urls from youtube (edit override.json)
 
 ---
 

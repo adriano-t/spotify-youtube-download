@@ -6,9 +6,14 @@ import time
 import csv
 import argparse
 from yt_dlp import YoutubeDL
-from mutagen.id3 import ID3, TIT2, TPE1, TALB, TRCK, TPOS, TDRC, APIC
+from mutagen.id3 import ID3, TIT2, TPE1, TALB, TRCK, TPOS, TDRC, APIC, TCON
 from tqdm import tqdm
 import eyed3
+import json
+
+# Carica il file JSON
+with open("overrides.json", "r", encoding="utf-8") as f:
+    overrides = json.load(f)
 
 def sanitize(filename):
     """Rimuove caratteri non validi per il nome di file."""
@@ -62,6 +67,10 @@ def update_metadata(mp3_file, row):
         audio.delall("TDRC")
         audio.add(TDRC(encoding=3, text=[year]))
 
+    # Aggiorna il genere musicale (usando il campo "Genere musicale" dal CSV)
+    audio.delall("TCON")
+    audio.add(TCON(encoding=3, text=[row.get("Genere musicale", "")]))
+
     cover_url = row.get("URL dell'immagine dell'album", "")
     if cover_url:
         try:
@@ -82,7 +91,7 @@ def update_metadata(mp3_file, row):
             print("Errore durante il download della copertina:", e)
 
     audio.save(mp3_file, v2_version=3)
-    print(f"Metadati aggiornati per {mp3_file}")
+    print(f"Metadati aggiornati: {mp3_file}")
 
 def add_lyrics_to_mp3(mp3_path, lyrics):
     """Aggiunge le lyrics al file MP3."""
@@ -110,9 +119,11 @@ def download_mp3(row, output_dir, force_update_metadata):
         print("Informazioni mancanti (traccia/artista); salto riga:", row)
         return 0
 
-    ## se il file esiste nella cartella di download, salta il download
+    # Se il file esiste nella cartella di download, salta il download
     base_filename = f"{sanitize(track_name)} - {sanitize(artist_name)}"
-    mp3_file = os.path.join(output_dir, base_filename + ".mp3")
+    full_filename = base_filename + ".mp3"
+    mp3_file = os.path.join(output_dir, full_filename)
+    downloaded = False
     if not os.path.exists(mp3_file):
         query = f"{track_name} {artist_name}"
         outtmpl = os.path.join(output_dir, base_filename + ".%(ext)s")
@@ -130,17 +141,22 @@ def download_mp3(row, output_dir, force_update_metadata):
             'http_headers': {'User-Agent': 'Mozilla/5.0'},
         }
 
-        search_query = f"ytsearch1:{query}"
+        if full_filename in overrides:
+            search_query = overrides[full_filename]
+        else:
+            search_query = f"ytsearch1:{query}"
+            
         with YoutubeDL(ydl_opts) as ydl:
             try:
                 print(f"\nAvvio download per: {query}")
                 ydl.download([search_query])
+                downloaded = True
             except Exception as e:
                 print(f"Errore durante il download per '{query}': {e}")
     elif force_update_metadata:
-        print(f"Il file {mp3_file} esiste già. Forzo aggiornamento METADATI")
+        print(f"Aggiornamento METADATI")
     else:
-        print(f"Il file {mp3_file} esiste già. Salto il download.")
+        print(f"Il file {full_filename} esiste già. Salto il download.")
         return 0
 
     if os.path.exists(mp3_file):
@@ -151,7 +167,7 @@ def download_mp3(row, output_dir, force_update_metadata):
     else:
         print(f"Il file {mp3_file} non è stato trovato. Saltato aggiornamento metadati.")
 
-    return 1
+    return 1 if downloaded else 0
 
 def main(csv_file, output_dir, force_update_metadata):
     if not os.path.exists(output_dir):
