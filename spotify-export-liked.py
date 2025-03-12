@@ -3,6 +3,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
@@ -38,10 +39,10 @@ def get_liked_songs():
             break  # End of saved tracks
         
         for item in items:
+            print(f"Processing track: {track.get('name', '')}")
             track = item.get('track', {})
             album = track.get('album', {})
             artists = track.get('artists', [])
-
             # Aggregate the genres of all artists
             genres_set = set()
             for artist in artists:
@@ -50,9 +51,12 @@ def get_liked_songs():
                     if artist_id in artist_genres_cache:
                         genres = artist_genres_cache[artist_id]
                     else:
+                        # sleep to avoid rate limiting (random sleep)
+                        time.sleep(0.2)
                         artist_info = sp.artist(artist_id)
                         genres = artist_info.get("genres", [])
                         artist_genres_cache[artist_id] = genres
+                        print(f"Artist: {artist['name']}, Genres: {genres}")
                     genres_set.update(genres)
             
             # Convert the set of genres into a comma-separated string

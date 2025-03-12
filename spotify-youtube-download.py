@@ -72,8 +72,8 @@ def get_genre_musicbrainz_for_track(track_name, artist_name):
     mbid = recordings[0].get("id")
     if not mbid:
         return None
-    # Respect rate limiting: wait 1 second before performing the lookup
-    time.sleep(1)
+    # Respect rate limiting: wait 5 seconds before performing the lookup
+    time.sleep(5)
     # Phase 2: Lookup the track with inc=genres
     lookup_url = f"{base_url}/{mbid}"
     lookup_params = {
@@ -94,6 +94,7 @@ def get_genre_musicbrainz_for_track(track_name, artist_name):
             return tags_sorted[0].get("name")
         return None
     # Return the name of the first genre found (you could also aggregate multiple genres)
+    print(f"[MusicBrainz] Found genres for {track_name} - {artist_name}: {genres}")
     return genres[0].get("name")
 
 def update_metadata(mp3_file, row):
@@ -215,13 +216,13 @@ def download_mp3(row, output_dir, force_update_metadata):
             search_query = f"ytsearch1:{query}"
         with YoutubeDL(ydl_opts) as ydl:
             try:
-                print(f"\nStarting download for: {query}")
+                print(f"Starting download for: {query}")
                 ydl.download([search_query])
                 downloaded = True
             except Exception as e:
                 print(f"Error during download for '{query}': {e}")
     elif force_update_metadata:
-        print("Updating metadata")
+        print(f"Updating metadata")
     else:
         print(f"The file {full_filename} already exists. Skipping download.")
         return 0
@@ -251,12 +252,11 @@ def main(csv_file, output_dir, force_update_metadata):
         reader = csv.DictReader(f, dialect=dialect)
         rows = list(reader)
         total_rows = len(rows)
-        print("Detected headers:", reader.fieldnames)
         print(f"Starting processing of {total_rows} songs.\n")
         for index, row in enumerate(tqdm(rows, desc="Processing songs", unit="song", dynamic_ncols=True), start=1):
             result = download_mp3(row, output_dir, force_update_metadata)
             percentage = (index / total_rows) * 100
-            print(f"Completion: {percentage:.2f}% ({index}/{total_rows})")
+            print(f"Completion: {percentage:.2f}% ({index}/{total_rows})\n")
             if result:
                 delay = random.randint(20, 60)
                 print(f"Waiting {delay} seconds before the next download...\n")
