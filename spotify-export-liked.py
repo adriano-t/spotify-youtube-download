@@ -39,10 +39,10 @@ def get_liked_songs():
             break  # End of saved tracks
         
         for item in items:
-            print(f"Processing track: {track.get('name', '')}")
             track = item.get('track', {})
             album = track.get('album', {})
             artists = track.get('artists', [])
+            print(f"Processing track: {track.get('name', '')}")
             # Aggregate the genres of all artists
             genres_set = set()
             for artist in artists:
