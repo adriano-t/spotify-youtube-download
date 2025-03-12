@@ -24,11 +24,11 @@ sp = spotipy.Spotify(
 )
 
 def get_liked_songs():
-    """Ottiene le tracce salvate dall'utente su Spotify e aggiunge il genere musicale."""
+    """Ottiene le tracce salvate dall'utente su Spotify e aggiunge il genere musicale aggregando tutti gli artisti."""
     results = []
     offset = 0
     limit = 50  # Spotify permette massimo 50 tracce per richiesta
-    artist_genres = {}  # Cache per evitare chiamate multiple per lo stesso artista
+    artist_genres_cache = {}  # Cache per evitare chiamate multiple per lo stesso artista
 
     while True:
         response = sp.current_user_saved_tracks(limit=limit, offset=offset)
@@ -42,21 +42,22 @@ def get_liked_songs():
             album = track.get('album', {})
             artists = track.get('artists', [])
 
-            # Estrae il genere dal primo artista (se disponibile)
-            genre = ""
-            if artists:
-                primary_artist = artists[0]
-                artist_id = primary_artist.get("id")
+            # Aggrega i generi di tutti gli artisti
+            genres_set = set()
+            for artist in artists:
+                artist_id = artist.get("id")
                 if artist_id:
-                    if artist_id in artist_genres:
-                        genre = artist_genres[artist_id]
+                    if artist_id in artist_genres_cache:
+                        genres = artist_genres_cache[artist_id]
                     else:
                         artist_info = sp.artist(artist_id)
                         genres = artist_info.get("genres", [])
-                        if genres:
-                            genre = genres[0]
-                        artist_genres[artist_id] = genre
+                        artist_genres_cache[artist_id] = genres
+                    genres_set.update(genres)
             
+            # Converte l'insieme dei generi in una stringa separata da virgole
+            genre = ", ".join(sorted(genres_set))
+
             results.append({
                 "Nome della traccia": track.get("name", ""),
                 "Nome dell'artista": ", ".join(artist["name"] for artist in artists) if artists else "",

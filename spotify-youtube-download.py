@@ -67,9 +67,19 @@ def update_metadata(mp3_file, row):
         audio.delall("TDRC")
         audio.add(TDRC(encoding=3, text=[year]))
 
-    # Aggiorna il genere musicale (usando il campo "Genere musicale" dal CSV)
+    # Gestione dei generi multipli:
+    # Se il campo "Genere musicale" contiene più generi separati da virgola,
+    # li splitto e li passo come lista al tag TCON.
+    genere_field = row.get("Genere musicale", "")
+    if genere_field:
+        generi = [g.strip() for g in genere_field.split(",") if g.strip()]
+    else:
+        generi = []
     audio.delall("TCON")
-    audio.add(TCON(encoding=3, text=[row.get("Genere musicale", "")]))
+    if generi:
+        audio.add(TCON(encoding=3, text=generi))
+    else:
+        audio.add(TCON(encoding=3, text=[""]))
 
     cover_url = row.get("URL dell'immagine dell'album", "")
     if cover_url:
