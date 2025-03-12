@@ -51,7 +51,7 @@ def get_genre_musicbrainz_for_track(track_name, artist_name):
     """
     base_url = "https://musicbrainz.org/ws/2/recording"
     headers = {
-        "User-Agent": "MyMusicApp/1.0 ( myemail@example.com )"  # Replace with your information
+        "User-Agent": "Mozilla/5.0"  # Replace with your information
     }
     # Phase 1: Search for the track
     query = f'recording:"{track_name}" AND artist:"{artist_name}"'
@@ -62,12 +62,12 @@ def get_genre_musicbrainz_for_track(track_name, artist_name):
     }
     search_resp = requests.get(base_url, params=search_params, headers=headers)
     if search_resp.status_code != 200:
-        print(f"Error during MusicBrainz search: {search_resp.status_code}")
+        print(f"[MusicBrainz] Error during search: {search_resp.status_code}")
         return None
     search_data = search_resp.json()
     recordings = search_data.get("recordings", [])
     if not recordings:
-        print("No track found in MusicBrainz.")
+        print("[MusicBrainz] No track found")
         return None
     mbid = recordings[0].get("id")
     if not mbid:
@@ -222,7 +222,7 @@ def download_mp3(row, output_dir, force_update_metadata):
             except Exception as e:
                 print(f"Error during download for '{query}': {e}")
     elif force_update_metadata:
-        print(f"Updating metadata")
+        print(f" Updating metadata")
     else:
         print(f"The file {full_filename} already exists. Skipping download.")
         return 0
